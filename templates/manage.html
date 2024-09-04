@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><center>Manage Tasks<</center></title>
+</head>
+<body>
+    <center>
+    <h2>Manage User Tasks</h2>
+    {% for user, user_tasks in all_tasks.items() %}
+        <h3>Tasks for {{ user }}:</h3>
+        <ul>
+            {% for task in user_tasks %}
+                <li>{{ task }}</li>
+            {% endfor %}
+        </ul>
+    {% endfor %}
+    <a href="{{ url_for('index') }}">Back to Your Tasks</a>
+</center>
+</body>
+</html>
