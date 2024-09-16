@@ -3,25 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><center>To-Do List</center></title>
+    <title>To-Do List</title>
 </head>
 <body>
     <center>
     <h2>Your Tasks</h2>
     <ul>
         {% for task in tasks %}
-            <li>{{ task }} <a href="{{ url_for('delete', task_id=loop.index0) }}">Delete</a></li>
+            <li>{{ task.content }} <a href="{{ url_for('delete', task_id=task.id) }}">Delete</a></li>
         {% endfor %}
     </ul>
     <a href="{{ url_for('add') }}">Add a new task</a>
     <br><br>
-    {% if roles[session['username']] == 'manager' %}
-        <a href="{{ url_for('manage') }}">Manage Tasks</a><br>
-    {% endif %}
-    {% if roles[session['username']] == 'admin' %}
-        <a href="{{ url_for('admin') }}">Admin Panel</a><br>
+    {% if session['username'] in roles %}
+        {% if roles[session['username']] == 'manager' %}
+            <a href="{{ url_for('manage') }}">Manage Tasks</a><br>
+        {% endif %}
+        {% if roles[session['username']] == 'admin' %}
+            <a href="{{ url_for('admin') }}">Admin Panel</a><br>
+        {% endif %}
     {% endif %}
     <a href="{{ url_for('logout') }}">Logout</a>
-</center>
+    </center>
 </body>
 </html>
