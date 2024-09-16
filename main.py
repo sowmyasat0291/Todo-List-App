@@ -4,7 +4,7 @@ from sqlalchemy.exc import IntegrityError
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'  # Use SQLite for simplicity
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -20,10 +20,6 @@ class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.String(200), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-
-# Create the database tables
-with app.app_context():
-    db.create_all()
 
 # Role definitions
 ROLES = {
@@ -98,7 +94,8 @@ def index():
         return redirect(url_for('login'))
     username = session['username']
     user = User.query.filter_by(username=username).first()
-    user_tasks = Task.query.filter_by(owner=user).all()
+    #user_tasks = Task.query.filter_by(owner=user).all()
+    user_tasks = Task.query.filter_by(user_id=user.id).all()
     return render_template('index.html', tasks=user_tasks)
 
 @app.route('/add', methods=['GET', 'POST'])
@@ -112,6 +109,7 @@ def add():
         new_task = Task(content=task_content, owner=user)
         db.session.add(new_task)
         db.session.commit()
+        print(f"Task added: {task_content} for user {username}")  # Debug print
         return redirect(url_for('index'))
     return render_template('add.html')
 
@@ -144,11 +142,12 @@ def admin():
     users_list = User.query.all()
     return render_template('admin.html', users=users_list, roles=ROLES)
 
-# Manually set an initial admin user
-if not User.query.filter_by(username='admin').first():
-    admin_user = User(username='admin', password='admin_password', role='admin')
-    db.session.add(admin_user)
-    db.session.commit()
-
 if __name__ == '__main__':
+    with app.app_context():
+        # Manually set an initial admin user
+        if not User.query.filter_by(username='admin').first():
+            admin_user = User(username='admin', password='admin_password', role='admin')
+            db.session.add(admin_user)
+            db.session.commit()
+            
     app.run(debug=True)
